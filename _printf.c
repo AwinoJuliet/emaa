@@ -3,7 +3,7 @@
 
 /**
  * _printf - produces output accrding to format
- * @format: character string.
+ * @format: character string composed of zero or more directives
  *
  * Return:  the number of characters printed
  * (excluding the null byte used to end output to strings)
@@ -11,44 +11,35 @@
 
 int _printf(const char *format, ...)
 {
-	va_list ap;
-	int (*f)(va_list);
-	unsigned int i = 0, counter = 0;
+	va_list arguments;
+	unsigned int sum = 0;
+	unsigned int n = 0;
 
 	if (format == NULL)
-		return (-1);
-
-	va_start(ap, format);
-	while (format && format[i])
 	{
-		if (format[i] != '%')
+		return (-1);
+	}
+
+	va_start(arguments, format);
+	for (; format[n] != '\0'; n++)
+	{
+		if (format[n] == '\0' || (format[n] == '%' && !format[n + 1]))
 		{
-			_putchar(format[i]);
-			counter++;
-			i++;
-			continue;
+			return (-1);
+		}
+		else if (format[n] == '%' && (format[n + 1] == 'd' ||
+			format[n + 1] == 'i' || format[n + 1] == 's' ||
+			format[n + 1] == 'c' || format[n + 1] == '%'))
+		{
+			sum += (*converter(format[n + 1]))(arguments);
+			n++;
 		}
 		else
 		{
-			if (format[i + 1] == '%')
-			{
-				_putchar('%');
-				counter++;
-				i += 2;
-				continue;
-			}
-			else
-			{
-				f = check_format(&format[i + 1]);
-				if (f == NULL)
-					return (-1);
-				i += 2;
-				counter += f(ap);
-				continue;
-			}
+			sum += _putchar(format[n]);
 		}
-		i++;
 	}
-	va_end(ap);
-	return (counter);
+	va_end(arguments);
+
+	return (sum);
 }
