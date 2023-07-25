@@ -1,45 +1,84 @@
 #include "main.h"
-#include <stdio.h>
+#include <stdarg.h>
 
 /**
- * _printf - produces output accrding to format
- * @format: character string composed of zero or more directives
- *
- * Return:  the number of characters printed
- * (excluding the null byte used to end output to strings)
+ * check_format - checks if there is a valid format specifier
+ * @format: possible valid format specifier
+ * Return: pointer to valid function or NULL
  */
+int (*check_format(const char *format))(va_list)
+{
+	int i = 0;
+	print_t p[] = {
+		{"c", print_c},
+		{"s", print_s},
+		{"i", print_i},
+		{"d", print_d},
+		{"b", print_b},
+		{"u", print_u},
+		{"o", print_o},
+		{"x", print_x},
+		{"X", print_X},
+		{"p", print_p},
+		{"S", print_S},
+		{"r", print_r},
+		{"R", print_R},
+		{NULL, NULL}
+	};
 
+	for (; p[i].t != NULL; i++)
+	{
+		if (*(p[i].t) == *format)
+			break;
+	}
+	return (p[i].f);
+}
+
+/**
+ * _printf - function for format printing
+ * @format: list of arguments to printing
+ * Return: Number of characters to printing
+ */
 int _printf(const char *format, ...)
 {
-	va_list arguments;
-	unsigned int sum = 0;
-	unsigned int n = 0;
+	va_list ap;
+	int (*f)(va_list);
+	unsigned int i = 0, counter = 0;
 
 	if (format == NULL)
-	{
 		return (-1);
-	}
 
-	va_start(arguments, format);
-	for (; format[n] != '\0'; n++)
+	va_start(ap, format);
+	while (format && format[i])
 	{
-		if (format[n] == '\0' || (format[n] == '%' && !format[n + 1]))
+		if (format[i] != '%')
 		{
-			return (-1);
-		}
-		else if (format[n] == '%' && (format[n + 1] == 'd' ||
-			format[n + 1] == 'i' || format[n + 1] == 's' ||
-			format[n + 1] == 'c' || format[n + 1] == '%'))
-		{
-			sum += (*converter(format[n + 1]))(arguments);
-			n++;
+			_putchar(format[i]);
+			counter++;
+			i++;
+			continue;
 		}
 		else
 		{
-			sum += _putchar(format[n]);
+			if (format[i + 1] == '%')
+			{
+				_putchar('%');
+				counter++;
+				i += 2;
+				continue;
+			}
+			else
+			{
+				f = check_format(&format[i + 1]);
+				if (f == NULL)
+					return (-1);
+				i += 2;
+				counter += f(ap);
+				continue;
+			}
 		}
+		i++;
 	}
-	va_end(arguments);
-
-	return (sum);
+	va_end(ap);
+	return (counter);
 }
