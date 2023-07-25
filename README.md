@@ -69,6 +69,7 @@ _printf("Alx is best: You %s know, Mahari.\n", "should"); // the output will be:
 _printf("% s", "Hello"); // the output will be: Hello
 
 _printf("% k"); // the output will be: % k
+
 **Objectives**
 - Using git in a team setting
 - Applying variadic functions to larger projects
